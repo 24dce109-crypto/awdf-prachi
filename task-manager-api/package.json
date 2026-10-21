@@ -3,13 +3,18 @@
   "version": "1.0.0",
   "private": true,
   "type": "commonjs",
-  "scripts": { "start": "node server.js", "dev": "node --watch server.js" },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.18.1"
+    "mongoose": "^8.18.1",
+    "node-cache": "^5.1.2"
   }
 }

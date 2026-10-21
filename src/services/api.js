@@ -25,3 +25,4 @@ export const getTasks = () => request("/tasks");
 export const createTask = (payload) => request("/tasks", { method: "POST", body: JSON.stringify(payload) });
 export const updateTask = (id, payload) => request(`/tasks/${id}`, { method: "PUT", body: JSON.stringify(payload) });
 export const deleteTask = (id) => request(`/tasks/${id}`, { method: "DELETE" });
+export const suggestTask = (title) => request("/ai/task-suggestion", { method: "POST", body: JSON.stringify({ title }) });

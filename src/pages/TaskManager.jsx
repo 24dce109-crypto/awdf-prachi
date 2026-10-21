@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { createTask, deleteTask, getTasks, updateTask } from "../services/api";
+import { createTask, deleteTask, getTasks, suggestTask, updateTask } from "../services/api";
 
 function TaskManager() {
   const navigate = useNavigate();
@@ -11,6 +11,9 @@ function TaskManager() {
   const [priority, setPriority] = useState("medium");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [suggestionLoading, setSuggestionLoading] = useState(false);
+  const [suggestionError, setSuggestionError] = useState("");
+  const [suggestion, setSuggestion] = useState("");
 
   async function loadTasks() {
     setLoading(true); setError("");
@@ -27,6 +30,22 @@ function TaskManager() {
       const task = await createTask({ title, description, priority });
       setTasks((old) => [task, ...old]); setTitle(""); setDescription(""); setPriority("medium");
     } catch (err) { setError(err.message); }
+  }
+
+  async function generateSuggestion() {
+    setSuggestionError("");
+    setSuggestion("");
+    setSuggestionLoading(true);
+    try {
+      const result = await suggestTask(title);
+      setDescription(result.description);
+      setPriority(result.priority);
+      setSuggestion(`${result.description} Suggested priority: ${result.priority}. ${result.disclaimer}`);
+    } catch (err) {
+      setSuggestionError(err.message);
+    } finally {
+      setSuggestionLoading(false);
+    }
   }
 
   async function toggleTask(task) {
@@ -70,6 +89,21 @@ function TaskManager() {
           <select value={priority} onChange={(e) => setPriority(e.target.value)}><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select>
           <button className="hero-btn primary" type="submit">Add task +</button>
         </form>
+
+        <section className="ai-suggestion" aria-label="AI task suggestion">
+          <button
+            className="hero-btn secondary"
+            type="button"
+            onClick={generateSuggestion}
+            disabled={!title.trim() || suggestionLoading}
+          >
+            {suggestionLoading ? "Generating suggestion..." : "Suggest description + priority"}
+          </button>
+          <p className="ai-disclaimer">Only the task title is sent to OpenAI; do not include personal or confidential information.</p>
+          <p className="ai-disclaimer">AI-generated suggestion; review before use.</p>
+          {suggestion && <p className="ai-result" role="status">{suggestion}</p>}
+          {suggestionError && <p className="error-text" role="alert">{suggestionError}</p>}
+        </section>
 
         {loading && <p className="loading-text">Fetching your tasks...</p>}
         {error && <p className="error-text">{error}</p>}
